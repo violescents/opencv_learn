@@ -36,7 +36,7 @@ def main():
     model_path = "pose_landmarker.task"
 
     base_options = python.BaseOptions(model_asset_path=model_path)
-    options = vision.PoseLandmarkerOptions(base_options = base_options, running_mode=vision.RunningMode.VIDEO, output_segmentation_masks=False)
+    options = vision.PoseLandmarkerOptions(base_options = base_options, running_mode=vision.RunningMode.VIDEO, output_segmentation_masks=True)
 
     detector = vision.PoseLandmarker.create_from_options(options)
 
@@ -71,6 +71,8 @@ def main():
                 right_knee = pose_landmarks[26]
                 right_ankle = pose_landmarks[28]
                 left_ankle = pose_landmarks[27]
+                left_shoulder = pose_landmarks[11]
+                right_shoulder = pose_landmarks[12]
 
                 h,w, _ = frame.shape
 
@@ -84,8 +86,10 @@ def main():
                 plk = (int(left_knee.x*w), int(left_knee.y*h))
                 pra = (int(right_ankle.x*w), int(right_ankle.y*h))
                 pla = (int(left_ankle.x*w), int(left_ankle.y*h))
+                pls = (int(left_shoulder.x*w), int(left_shoulder.y*h))
+                prs = (int(right_shoulder.x*w), int(right_shoulder.y*h))
 
-                if left_elbow.presence >0.5 and left_wrist.presence > 0.5:
+                if left_elbow.presence > 0.5 and left_wrist.presence > 0.5:
                     cv2.line(frame, ple, plw, (255, 0, 0), 3)
                 if right_elbow.presence > 0.5 and right_elbow.presence > 0.5:
                     cv2.line(frame, pre, prw, (255,0,0), 3)
@@ -95,6 +99,10 @@ def main():
                     cv2.line(frame, plk, pla, (0,255,0), 3)
                 if right_knee.presence > 0.5 and right_ankle.presence > 0.5:
                     cv2.line(frame, prk, pra, (0,255,0), 3)
+                if right_shoulder.presence>0.5 and right_elbow.presence > 0.5:
+                    cv2.line(frame, prs, pre, (255,255,255), 3)
+                if left_shoulder.presence >0.5 and left_elbow.presence>0.5:
+                    cv2.line(frame, pls, ple, (255,255,255), 3)
 
         cv2.imshow('Mediapipe tasks pose tracking', frame)
         writer.write(frame)
